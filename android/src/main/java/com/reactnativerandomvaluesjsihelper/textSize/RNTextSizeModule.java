@@ -37,28 +37,24 @@ public class RNTextSizeModule {
    */
   @SuppressWarnings("unused")
   @Nullable
-  public static ReadableMap measure(@Nullable final ReadableMap specs) {
+  public static double[] measure(String t, double fs, double w) {
+    WritableMap specs = Arguments.createMap();
+    specs.putString("text", t);
+    specs.putDouble("fontSize", fs);
+    specs.putDouble("width", w);
     final RNTextSizeConf conf = getConf(specs, true);
-    if (conf == null) {
-      return null;
-    }
 
     final String _text = conf.getString("text");
     if (_text == null) {
-      return null;
+      return new double[0];
     }
 
     final float density = getCurrentDensity();
     final float width = conf.getWidth(density);
     final boolean includeFontPadding = conf.includeFontPadding;
 
-    final WritableMap result = Arguments.createMap();
     if (_text.isEmpty()) {
-      result.putInt("width", 0);
-      result.putDouble("height", minimalHeight(density, includeFontPadding));
-      result.putInt("lastLineWidth", 0);
-      result.putInt("lineCount", 0);
-      return result;
+      return new double[] {minimalHeight(density, includeFontPadding), 0};
     }
 
     final SpannableString text = (SpannableString) RNTextSizeSpannedText
@@ -112,41 +108,8 @@ public class RNTextSizeModule {
       }
 
       final int lineCount = layout.getLineCount();
-      float rectWidth;
 
-      if (conf.getBooleanOrTrue("usePreciseWidth")) {
-        float lastWidth = 0f;
-        // Layout.getWidth() returns the configured max width, we must
-        // go slow to get the used one (and with the text trimmed).
-        rectWidth = 0f;
-        for (int i = 0; i < lineCount; i++) {
-          lastWidth = layout.getLineMax(i);
-          if (lastWidth > rectWidth) {
-            rectWidth = lastWidth;
-          }
-        }
-        result.putDouble("lastLineWidth", lastWidth / density);
-      } else {
-        rectWidth = layout.getWidth();
-      }
-
-      result.putDouble("width", Math.min(rectWidth / density, width));
-      result.putDouble("height", layout.getHeight() / density);
-      result.putInt("lineCount", lineCount);
-
-      Integer lineInfoForLine = conf.getIntOrNull("lineInfoForLine");
-      if (lineInfoForLine != null && lineInfoForLine >= 0) {
-        final int line = Math.min(lineInfoForLine, lineCount);
-        final WritableMap info = Arguments.createMap();
-        info.putInt("line", line);
-        info.putInt("start", layout.getLineStart(line));
-        info.putInt("end", layout.getLineVisibleEnd(line));
-        info.putDouble("bottom", layout.getLineBottom(line) / density);
-        info.putDouble("width", layout.getLineMax(line) / density);
-        result.putMap("lineInfo", info);
-      }
-
-      return result;
+      return new double[]{ layout.getHeight() / density, lineCount};
     } catch (Exception e) {
       e.printStackTrace();
       return null;

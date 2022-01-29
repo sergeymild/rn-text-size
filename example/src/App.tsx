@@ -1,31 +1,21 @@
 import * as React from 'react';
 
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import 'react-native-random-values-jsi-helper';
-import { useCallback } from 'react';
-import { v4 as uuid } from 'uuid';
 
 
 const text = 'The default is the same applied by React Native: Roboto in Android, San Francisco in iOS.\n' +
   'Note: Device manufacturer or custom ROM can change the default font'
 
 export default function App() {
-  const [_uuid, setUuid] = React.useState<string | undefined>(undefined);
-
-  const generateUuid = useCallback(() => {
-    // const generatedUUID = uuid();
-    // setUuid(generatedUUID);
-
-  }, []);
-
-  console.log('[App.measure]', global.measureText(text, 20, 50));
+  const fs = 20
+  const w = 100
+  const h = global.measureText(text, fs, w).height
+  console.log('[App.measure]', h);
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity onPress={generateUuid}>
-        <Text>Generate UUID</Text>
-      </TouchableOpacity>
-      <Text style={{fontSize: 14, height: 100, maxWidth: 80, backgroundColor: 'red'}}>{text}</Text>
+      <Text style={{fontSize: fs, height: h, maxWidth: w, backgroundColor: 'red'}}>{text}</Text>
     </View>
   );
 }

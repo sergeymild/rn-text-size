@@ -20,10 +20,6 @@ void registerOnJSRuntimeDestroy(jsi::Runtime &runtime) {
 }
 
 void install(jsi::Runtime &jsiRuntime, /*std::function<byte *(int size)> createRandomBytes,*/ JNIEnv *env) {
-    jclass clazz = env->FindClass("com/reactnativerandomvaluesjsihelper/textSize/RNTextSizeModule");
-    jmethodID method = env->GetStaticMethodID(clazz, "measure",
-                           "(Lcom/facebook/react/bridge/ReadableMap;)Lcom/facebook/react/bridge/ReadableMap;");
-
     registerOnJSRuntimeDestroy(jsiRuntime);
 
 
@@ -35,11 +31,34 @@ void install(jsi::Runtime &jsiRuntime, /*std::function<byte *(int size)> createR
                 const jsi::Value &thisArg,
                 const jsi::Value *args,
                 size_t count) -> jsi::Value {
-
-                //_jobject *result = env->CallStaticObjectMethod(clazz, height, value, width);
-
                 auto result = jsi::Object(runtime);
-                result.setProperty(runtime, "height", 100);
+
+                std::string rawString = args[0].asString(runtime).utf8(runtime);
+                double fontSize = args[1].asNumber();
+                double width = args[2].asNumber();
+                jstring text = env->NewStringUTF(rawString.c_str());
+
+                jclass clazz = env->FindClass("com/reactnativerandomvaluesjsihelper/textSize/RNTextSizeModule");
+                jmethodID method = env->GetStaticMethodID(clazz, "measure",
+                                                          "(Ljava/lang/String;DD)[D");
+
+                auto methodResult = env->CallStaticObjectMethod(clazz, method, text, fontSize, width);
+                _jdoubleArray* jarray1 = reinterpret_cast<_jdoubleArray*>(methodResult);
+                double *data = env->GetDoubleArrayElements(jarray1, NULL);
+                auto length = env->GetArrayLength(jarray1);
+                int i;
+                for (i = 0; i < length; i++) {
+                    if (i == 0) {
+                        result.setProperty(runtime, "height", data[i]);
+                    }
+                    if (i == 1) {
+                        result.setProperty(runtime, "lineCount", data[i]);
+                    }
+                }
+
+
+                env->DeleteLocalRef(text);
+                env->ReleaseDoubleArrayElements(jarray1, data, 0);
 
                 return result;
             });

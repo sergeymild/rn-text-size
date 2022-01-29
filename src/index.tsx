@@ -19,13 +19,10 @@ const RandomValuesJsiHelper = NativeModules.RandomValuesJsiHelper
 
 RandomValuesJsiHelper.install();
 
-// @ts-expect-error
-if (typeof global.crypto !== 'object') {
-  // @ts-ignore
-  global.crypto = {};
+declare global {
+  function measureText(
+    text: string,
+    fontSize: number,
+    maxWidth: number
+  ): { lineCount: number; height: number };
 }
-// @ts-expect-error
-global.crypto.getRandomValues = (array: ArrayBuffer) => {
-  // @ts-expect-error
-  return global.getRandomValues(array.byteLength);
-};

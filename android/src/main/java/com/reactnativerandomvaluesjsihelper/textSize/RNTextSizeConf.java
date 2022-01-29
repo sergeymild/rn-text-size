@@ -84,12 +84,6 @@ final class RNTextSizeConf {
       ? mOpts.getString(name) : null;
   }
 
-  @Nullable
-  ReadableArray getArray(@Nonnull final String name) {
-    return mOpts.hasKey(name) && mOpts.getType(name) == ReadableType.Array
-      ? mOpts.getArray(name) : null;
-  }
-
   float scale(final float measure) {
     return allowFontScaling
       ? PixelUtil.toPixelFromSP(measure)

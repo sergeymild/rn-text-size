@@ -2,12 +2,18 @@ cmake_minimum_required(VERSION 3.9.0)
 
 set (PACKAGE_NAME "react-native-random-values-jsi-helper")
 set (BUILD_DIR ${CMAKE_SOURCE_DIR}/build)
+#set (CMAKE_CXX_FLAGS "-DFOLLY_NO_CONFIG=1 -DFOLLY_HAVE_CLOCK_GETTIME=1 -DFOLLY_HAVE_MEMRCHR=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_MOBILE=1")
+
+#file (GLOB LIBFBJNI_INCLUDE_DIR "${BUILD_DIR}/fbjni-*-headers.jar/")
 
 include_directories(
         "../cpp"
+        "src/cpp"
         "${NODE_MODULES_DIR}/react-native/React"
         "${NODE_MODULES_DIR}/react-native/React/Base"
         "${NODE_MODULES_DIR}/react-native/ReactCommon/jsi"
+        "${NODE_MODULES_DIR}/react-native/ReactAndroid/src/main/jni"
+        "${NODE_MODULES_DIR}/react-native/ReactAndroid/src/main/java/com/facebook/react/turbomodule/core/jni"
 )
 
 if(${REACT_NATIVE_VERSION} LESS 66)
@@ -23,6 +29,11 @@ add_library(reactnativerandomvaluesjsihelper
         "../cpp/TypedArray.cpp"
         ${INCLUDE_JSI_CPP}
 )
+
+#target_include_directories(
+#        reactnativerandomvaluesjsihelper
+#)
+
 set_target_properties(
         reactnativerandomvaluesjsihelper PROPERTIES
         CXX_STANDARD 14
