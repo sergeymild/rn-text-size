@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		5E46D8CD2428F78900513E24 /* example.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5E46D8CB2428F78900513E24 /* example.cpp */; };
 		5E555C0D2413F4C50049A1A2 /* RandomValuesJsiHelper.mm in Sources */ = {isa = PBXBuildFile; fileRef = B3E7B5891CC2AC0600A0062D /* RandomValuesJsiHelper.mm */; };
 		924CDF5027A445120034FE08 /* RNTextSize.m in Sources */ = {isa = PBXBuildFile; fileRef = 924CDF4F27A445120034FE08 /* RNTextSize.m */; };
 /* End PBXBuildFile section */
@@ -26,8 +25,6 @@
 
 /* Begin PBXFileReference section */
 		134814201AA4EA6300B7C361 /* libRandomValuesJsiHelper.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRandomValuesJsiHelper.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		5E46D8CB2428F78900513E24 /* example.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = example.cpp; path = ../cpp/example.cpp; sourceTree = "<group>"; };
-		5E46D8CC2428F78900513E24 /* example.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = example.h; path = ../cpp/example.h; sourceTree = "<group>"; };
 		924CDF4F27A445120034FE08 /* RNTextSize.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RNTextSize.m; sourceTree = "<group>"; };
 		924CDF5127A445910034FE08 /* RNTextSize.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RNTextSize.h; sourceTree = "<group>"; };
 		B3E7B5891CC2AC0600A0062D /* RandomValuesJsiHelper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RandomValuesJsiHelper.mm; sourceTree = "<group>"; };
@@ -57,8 +54,6 @@
 			children = (
 				924CDF5127A445910034FE08 /* RNTextSize.h */,
 				924CDF4F27A445120034FE08 /* RNTextSize.m */,
-				5E46D8CB2428F78900513E24 /* example.cpp */,
-				5E46D8CC2428F78900513E24 /* example.h */,
 				B3E7B5891CC2AC0600A0062D /* RandomValuesJsiHelper.mm */,
 				134814211AA4EA7D00B7C361 /* Products */,
 			);
@@ -121,7 +116,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5E46D8CD2428F78900513E24 /* example.cpp in Sources */,
 				5E555C0D2413F4C50049A1A2 /* RandomValuesJsiHelper.mm in Sources */,
 				924CDF5027A445120034FE08 /* RNTextSize.m in Sources */,
 			);

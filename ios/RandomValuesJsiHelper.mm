@@ -1,26 +1,12 @@
 #import "RandomValuesJsiHelper.h"
-#import "react-native-random-values-jsi-helper.h"
 #import <React/RCTBlobManager.h>
 #import <React/RCTBridge+Private.h>
 #import <jsi/jsi.h>
-#import "TypedArray.hpp"
 
 #import <memory>
 #import "RNTextSize.h"
 
 using namespace facebook;
-
-
-
-constexpr const char *OnJSRuntimeDestroyPropertyName = "__RandomValuesOnJsRuntimeDestroy";
-
-void registerOnJSRuntimeDestroy(jsi::Runtime &runtime) {
-    runtime.global().setProperty(
-                               runtime,
-                               OnJSRuntimeDestroyPropertyName,
-                               jsi::Object::createFromHostObject(
-                                   runtime, std::make_shared<InvalidateCacheOnDestroy>(runtime)));
-}
 
 @implementation RandomValuesJsiHelper
 
@@ -73,32 +59,9 @@ RCT_EXPORT_BLOCKING_SYNCHRONOUS_METHOD(install) {
     }
     
     auto& runtime = *jsiRuntime;
-
-    registerOnJSRuntimeDestroy(runtime);
-    
-    auto getRandomValues = jsi::Function::createFromHostFunction(runtime,
-                                                                 jsi::PropNameID::forUtf8(runtime, "getRandomValues"),
-                                                                 1,
-                                                                 [](jsi::Runtime& runtime,
-                                                                    const jsi::Value& thisArg,
-                                                                    const jsi::Value* args,
-                                                                    size_t count) -> jsi::Value {
-        auto byteLength = args[0].asNumber();
-
-        NSMutableData *data = [NSMutableData dataWithLength:byteLength];
-        int result = SecRandomCopyBytes(kSecRandomDefault, byteLength, data.mutableBytes);
-        if (result != errSecSuccess) {
-        }
-        
-        auto typedArray = TypedArray<TypedArrayKind::Uint8Array>(runtime, byteLength);
-        auto arrayBuffer = typedArray.getBuffer(runtime);
-        memcpy(arrayBuffer.data(runtime), data.bytes, data.length);
-        return typedArray;
-    });
-    
     
     auto measureText = jsi::Function::createFromHostFunction(runtime,
-                                                                 jsi::PropNameID::forUtf8(runtime, "getRandomValues"),
+                                                                 jsi::PropNameID::forUtf8(runtime, "measureText"),
                                                                  3,
                                                                  [](jsi::Runtime& runtime,
                                                                     const jsi::Value& thisArg,
@@ -119,7 +82,6 @@ RCT_EXPORT_BLOCKING_SYNCHRONOUS_METHOD(install) {
         return convertNSDictionaryToJSIObject(runtime, result);
     });
 
-    runtime.global().setProperty(runtime, "getRandomValues", getRandomValues);
     runtime.global().setProperty(runtime, "measureText", measureText);
     
     return @true;

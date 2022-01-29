@@ -7,7 +7,6 @@ set (BUILD_DIR ${CMAKE_SOURCE_DIR}/build)
 #file (GLOB LIBFBJNI_INCLUDE_DIR "${BUILD_DIR}/fbjni-*-headers.jar/")
 
 include_directories(
-        "../cpp"
         "src/cpp"
         "${NODE_MODULES_DIR}/react-native/React"
         "${NODE_MODULES_DIR}/react-native/React/Base"
@@ -26,7 +25,6 @@ endif()
 add_library(reactnativerandomvaluesjsihelper
         SHARED
         cpp-adapter.cpp
-        "../cpp/TypedArray.cpp"
         ${INCLUDE_JSI_CPP}
 )
 

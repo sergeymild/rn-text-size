@@ -8,8 +8,8 @@ const text = 'The default is the same applied by React Native: Roboto in Android
   'Note: Device manufacturer or custom ROM can change the default font'
 
 export default function App() {
-  const fs = 20
-  const w = 100
+  const fs = 14
+  const w = 200
   const h = global.measureText(text, fs, w).height
   console.log('[App.measure]', h);
 

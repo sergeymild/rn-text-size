@@ -18,12 +18,10 @@ import java.security.SecureRandom;
 @ReactModule(name = RandomValuesJsiHelperModule.NAME)
 public class RandomValuesJsiHelperModule extends ReactContextBaseJavaModule {
     public static final String NAME = "RandomValuesJsiHelper";
-    public static ReactApplicationContext reactContext;
 
     public RandomValuesJsiHelperModule(ReactApplicationContext reactContext) {
         super(reactContext);
       RNTextSizeModule.mReactContext = reactContext.getApplicationContext();
-      RandomValuesJsiHelperModule.reactContext = reactContext;
     }
 
     @Override
