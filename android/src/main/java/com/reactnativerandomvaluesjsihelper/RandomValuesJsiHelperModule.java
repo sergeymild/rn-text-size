@@ -10,6 +10,7 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.module.annotations.ReactModule;
+import com.reactnativerandomvaluesjsihelper.textSize.RNTextSizeModule;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -21,6 +22,7 @@ public class RandomValuesJsiHelperModule extends ReactContextBaseJavaModule {
 
     public RandomValuesJsiHelperModule(ReactApplicationContext reactContext) {
         super(reactContext);
+      RNTextSizeModule.mReactContext = reactContext.getApplicationContext();
       RandomValuesJsiHelperModule.reactContext = reactContext;
     }
 

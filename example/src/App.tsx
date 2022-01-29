@@ -25,7 +25,7 @@ export default function App() {
       <TouchableOpacity onPress={generateUuid}>
         <Text>Generate UUID</Text>
       </TouchableOpacity>
-      <Text style={{fontSize: 14, height: global.measureText(text, 14, 80).height, maxWidth: 80, backgroundColor: 'red'}}>{text}</Text>
+      <Text style={{fontSize: 14, height: 100, maxWidth: 80, backgroundColor: 'red'}}>{text}</Text>
     </View>
   );
 }

@@ -1,14 +1,13 @@
 package com.reactnativerandomvaluesjsihelper.textSize;
 
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.text.Spannable;
 import android.text.TextPaint;
 import android.text.style.AbsoluteSizeSpan;
 import android.text.style.MetricAffectingSpan;
-
-import com.facebook.react.bridge.ReactApplicationContext;
 
 import javax.annotation.Nonnull;
 
@@ -17,7 +16,7 @@ final class RNTextSizeSpannedText {
     RNTextSizeSpannedText() {}
 
     static Spannable spannedFromSpecsAndText(
-            @Nonnull final ReactApplicationContext context,
+            @Nonnull final Context context,
             @Nonnull final RNTextSizeConf conf,
             @Nonnull final Spannable text
     ) {

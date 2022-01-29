@@ -19,9 +19,10 @@ void registerOnJSRuntimeDestroy(jsi::Runtime &runtime) {
                     runtime, std::make_shared<InvalidateCacheOnDestroy>(runtime)));
 }
 
-void install(jsi::Runtime &jsiRuntime, std::function<byte *(int size)> createRandomBytes, JNIEnv *env) {
+void install(jsi::Runtime &jsiRuntime, /*std::function<byte *(int size)> createRandomBytes,*/ JNIEnv *env) {
     jclass clazz = env->FindClass("com/reactnativerandomvaluesjsihelper/textSize/RNTextSizeModule");
-    jclass clazz = env->GetStaticMethodID(clazz, "measure", "(Ljava/lang/String;D;D)D;");
+    jmethodID method = env->GetStaticMethodID(clazz, "measure",
+                           "(Lcom/facebook/react/bridge/ReadableMap;)Lcom/facebook/react/bridge/ReadableMap;");
 
     registerOnJSRuntimeDestroy(jsiRuntime);
 
@@ -35,7 +36,7 @@ void install(jsi::Runtime &jsiRuntime, std::function<byte *(int size)> createRan
                 const jsi::Value *args,
                 size_t count) -> jsi::Value {
 
-                _jobject *result = env->CallStaticObjectMethod(clazz, height, value, width);
+                //_jobject *result = env->CallStaticObjectMethod(clazz, height, value, width);
 
                 auto result = jsi::Object(runtime);
                 result.setProperty(runtime, "height", 100);
@@ -43,7 +44,6 @@ void install(jsi::Runtime &jsiRuntime, std::function<byte *(int size)> createRan
                 return result;
             });
 
-    jsiRuntime.global().setProperty(jsiRuntime, "getRandomValues", std::move(getRandomValues));
     jsiRuntime.global().setProperty(jsiRuntime, "measureText", std::move(measureText));
 }
 
@@ -71,6 +71,6 @@ Java_com_reactnativerandomvaluesjsihelper_RandomValuesJsiHelperModule_nativeInst
 
     auto runtime = reinterpret_cast<jsi::Runtime*>(jsiPtr);
     if (runtime) {
-        install(*runtime, createRandomBytes, env);
+        install(*runtime, env);
     }
 }
