@@ -24,5 +24,5 @@ declare global {
     text: string,
     fontSize: number,
     maxWidth: number
-  ): { lineCount: number; height: number };
+  ): { height: number; width: number; lineCount: number; lastLineWidth: number };
 }

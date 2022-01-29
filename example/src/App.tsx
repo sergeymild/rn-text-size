@@ -9,13 +9,13 @@ const text = 'The default is the same applied by React Native: Roboto in Android
 
 export default function App() {
   const fs = 14
-  const w = 200
-  const h = global.measureText(text, fs, w).height
+  const w = 53
+  const h = global.measureText(text, fs, w)
   console.log('[App.measure]', h);
 
   return (
     <View style={styles.container}>
-      <Text style={{fontSize: fs, height: h, maxWidth: w, backgroundColor: 'red'}}>{text}</Text>
+      <Text style={{fontSize: fs, height: h.height, width: h.width, backgroundColor: 'red'}}>{text}</Text>
     </View>
   );
 }

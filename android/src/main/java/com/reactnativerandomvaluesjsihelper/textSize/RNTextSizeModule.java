@@ -35,13 +35,14 @@ public class RNTextSizeModule {
   /**
    * Based on ReactTextShadowNode.java
    */
-  @SuppressWarnings("unused")
+  // {height, width, lineCount, lastLineWidth}
   @Nullable
   public static double[] measure(String t, double fs, double w) {
     WritableMap specs = Arguments.createMap();
     specs.putString("text", t);
     specs.putDouble("fontSize", fs);
     specs.putDouble("width", w);
+    specs.putBoolean("usePreciseWidth", true);
     final RNTextSizeConf conf = getConf(specs, true);
 
     final String _text = conf.getString("text");
@@ -54,7 +55,7 @@ public class RNTextSizeModule {
     final boolean includeFontPadding = conf.includeFontPadding;
 
     if (_text.isEmpty()) {
-      return new double[] {minimalHeight(density, includeFontPadding), 0};
+      return new double[] {minimalHeight(density, includeFontPadding), 0, 0, 0};
     }
 
     final SpannableString text = (SpannableString) RNTextSizeSpannedText
@@ -107,9 +108,26 @@ public class RNTextSizeModule {
         }
       }
 
-      final int lineCount = layout.getLineCount();
+      final double lineCount = layout.getLineCount();
+      double rectWidth;
+      double lastLineWidth = 0.0;
+      if (conf.getBooleanOrTrue("usePreciseWidth")) {
+        float lastWidth = 0f;
+        // Layout.getWidth() returns the configured max width, we must
+        // go slow to get the used one (and with the text trimmed).
+        rectWidth = 0f;
+        for (int i = 0; i < lineCount; i++) {
+          lastWidth = layout.getLineMax(i);
+          if (lastWidth > rectWidth) {
+            rectWidth = lastWidth;
+          }
+        }
+        lastLineWidth = lastWidth / density;
+      } else {
+        rectWidth = layout.getWidth();
+      }
 
-      return new double[]{ layout.getHeight() / density, lineCount};
+      return new double[]{ layout.getHeight() / density, rectWidth / density, lineCount, lastLineWidth};
     } catch (Exception e) {
       e.printStackTrace();
       return null;

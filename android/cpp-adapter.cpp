@@ -36,14 +36,13 @@ void install(jsi::Runtime &jsiRuntime, /*std::function<byte *(int size)> createR
                 _jdoubleArray* jarray1 = reinterpret_cast<_jdoubleArray*>(methodResult);
                 double *data = env->GetDoubleArrayElements(jarray1, NULL);
                 auto length = env->GetArrayLength(jarray1);
+                // {height, width, lineCount, lastLineWidth}
                 int i;
                 for (i = 0; i < length; i++) {
-                    if (i == 0) {
-                        result.setProperty(runtime, "height", data[i]);
-                    }
-                    if (i == 1) {
-                        result.setProperty(runtime, "lineCount", data[i]);
-                    }
+                    if (i == 0) result.setProperty(runtime, "height", data[i]);
+                    if (i == 1) result.setProperty(runtime, "width", data[i]);
+                    if (i == 2) result.setProperty(runtime, "lineCount", data[i]);
+                    if (i == 3) result.setProperty(runtime, "lastLineWidth", data[i]);
                 }
 
 

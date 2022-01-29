@@ -76,7 +76,8 @@ RCT_EXPORT_BLOCKING_SYNCHRONOUS_METHOD(install) {
         auto result = [[[RNTextSize alloc] init] measure:@{
             @"text": text,
             @"width": [[NSNumber alloc] initWithDouble:width],
-            @"fontSize": [[NSNumber alloc] initWithDouble:fontSize]
+            @"fontSize": [[NSNumber alloc] initWithDouble:fontSize],
+            @"usePreciseWidth": @true
         }];
         
         return convertNSDictionaryToJSIObject(runtime, result);

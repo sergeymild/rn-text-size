@@ -5,15 +5,11 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.facebook.react.bridge.JavaScriptContextHolder;
-import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.module.annotations.ReactModule;
 import com.reactnativerandomvaluesjsihelper.textSize.RNTextSizeModule;
-
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 
 @ReactModule(name = RandomValuesJsiHelperModule.NAME)
 public class RandomValuesJsiHelperModule extends ReactContextBaseJavaModule {
@@ -43,15 +39,6 @@ public class RandomValuesJsiHelperModule extends ReactContextBaseJavaModule {
       Log.e(NAME, "Failed to install JSI Bindings!", exception);
       return false;
     }
-  }
-
-  public byte[] getRandomBytes(int byteLength){
-    byte[] data = new byte[byteLength];
-    SecureRandom random = new SecureRandom();
-
-    random.nextBytes(data);
-
-    return data;
   }
 
   public static native void nativeInstall(long jsiPointer, RandomValuesJsiHelperModule instance);
