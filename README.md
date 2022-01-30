@@ -16,16 +16,18 @@ Import ```react-native-random-values-jsi-helper``` in your index.js file.
 import "react-native-random-values-jsi-helper";
 ```
 
-You can now use the `global.measureText` method in your React Native app.
+You can now use the `RNViewHelpers.measureText` and `RNViewHelpers.measureView` method in your React Native app.
 
 ```ts
-declare global {
-  function measureText(
-    text: string,
-    fontSize: number,
-    maxWidth: number
-  ): { height: number; width: number; lineCount: number; lastLineWidth: number };
-}
+RNViewHelpers.measureText(
+  text: string,
+  fontSize: number,
+  maxWidth: number
+): { height: number; width: number; lineCount: number; lastLineWidth: number };
+
+RNViewHelpers.measureView(
+  ref: ref: React.RefObject<any>
+): { height: number; width: number; x: number; y: number };
 ```
 
 ## Performance

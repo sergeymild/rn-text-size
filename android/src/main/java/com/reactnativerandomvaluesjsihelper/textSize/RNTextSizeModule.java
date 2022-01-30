@@ -2,25 +2,42 @@ package com.reactnativerandomvaluesjsihelper.textSize;
 
 import android.content.Context;
 import android.content.res.AssetManager;
+import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.BoringLayout;
 import android.text.Layout;
 import android.text.SpannableString;
 import android.text.StaticLayout;
 import android.text.TextPaint;
+import android.view.View;
+import android.view.ViewParent;
 
 import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.ReactApplicationContext;
+import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReadableMap;
+import com.facebook.react.bridge.UIManager;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.uimanager.DisplayMetricsHolder;
+import com.facebook.react.uimanager.IllegalViewOperationException;
+import com.facebook.react.uimanager.PixelUtil;
+import com.facebook.react.uimanager.RootViewUtil;
+import com.facebook.react.uimanager.UIManagerHelper;
+import com.facebook.react.uimanager.UIManagerModule;
+import com.facebook.react.uimanager.common.UIManagerType;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Semaphore;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -31,6 +48,95 @@ public class RNTextSizeModule {
   private static final float SPACING_MULTIPLIER = 1f;
 
   public static Context mReactContext;
+  private static Handler handler = new Handler(Looper.getMainLooper());
+
+  public static double[] measure(View view) {
+    View rootView = (View) RootViewUtil.getRootView(view);
+    if (rootView == null) {
+      double[] result = new double[6];
+      result[0] = -1234567;
+      return result;
+    }
+
+    int[] buffer = new int[4];
+    computeBoundingBox(rootView, buffer);
+    int rootX = buffer[0];
+    int rootY = buffer[1];
+    computeBoundingBox(view, buffer);
+    buffer[0] -= rootX;
+    buffer[1] -= rootY;
+
+    double[] result = new double[6];
+    result[0] = result[1] = 0;
+    for (int i = 2; i < 6; ++i) result[i] = PixelUtil.toDIPFromPixel(buffer[i - 2]);
+
+    return result;
+  }
+
+  private static void computeBoundingBox(View view, int[] outputBuffer) {
+    RectF boundingBox = new RectF();
+    boundingBox.set(0, 0, view.getWidth(), view.getHeight());
+    mapRectFromViewToWindowCoords(view, boundingBox);
+
+    outputBuffer[0] = Math.round(boundingBox.left);
+    outputBuffer[1] = Math.round(boundingBox.top);
+    outputBuffer[2] = Math.round(boundingBox.right - boundingBox.left);
+    outputBuffer[3] = Math.round(boundingBox.bottom - boundingBox.top);
+  }
+
+  private static void mapRectFromViewToWindowCoords(View view, RectF rect) {
+    Matrix matrix = view.getMatrix();
+    if (!matrix.isIdentity()) {
+      matrix.mapRect(rect);
+    }
+
+    rect.offset(view.getLeft(), view.getTop());
+
+    ViewParent parent = view.getParent();
+    while (parent instanceof View) {
+      View parentView = (View) parent;
+
+      rect.offset(-parentView.getScrollX(), -parentView.getScrollY());
+
+      matrix = parentView.getMatrix();
+      if (!matrix.isIdentity()) {
+        matrix.mapRect(rect);
+      }
+
+      rect.offset(parentView.getLeft(), parentView.getTop());
+
+      parent = parentView.getParent();
+    }
+  }
+
+  public static double[] measureView(double rawViewId) {
+    int viewId = (int) rawViewId;
+    UIManagerModule uiManager = ((ReactApplicationContext) mReactContext).getNativeModule(UIManagerModule.class);
+    Semaphore semaphore = new Semaphore(0);
+    final double[][] measure = new double[1][1];
+    handler.post(new Runnable() {
+      @Override
+      public void run() {
+        try {
+          View view = uiManager.resolveView(viewId);
+          if (view != null) {
+            measure[0] = measure(view);
+          }
+        } catch (IllegalViewOperationException e) {
+          e.printStackTrace();
+        }
+        semaphore.release();
+      }
+    });
+
+    try {
+      semaphore.acquire();
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+
+    return measure[0];
+  }
 
   /**
    * Based on ReactTextShadowNode.java

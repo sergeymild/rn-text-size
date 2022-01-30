@@ -1,5 +1,6 @@
 #import "RandomValuesJsiHelper.h"
 #import <React/RCTBlobManager.h>
+#import <React/RCTUIManager.h>
 #import <React/RCTBridge+Private.h>
 #import <jsi/jsi.h>
 
@@ -84,6 +85,48 @@ RCT_EXPORT_BLOCKING_SYNCHRONOUS_METHOD(install) {
     });
 
     runtime.global().setProperty(runtime, "measureText", measureText);
+    
+    auto measureView = jsi::Function::createFromHostFunction(runtime,
+                                                                 jsi::PropNameID::forUtf8(runtime, "measureView"),
+                                                                 1,
+                                                                 [bridge](jsi::Runtime& runtime,
+                                                                    const jsi::Value& thisArg,
+                                                                    const jsi::Value* args,
+                                                                    size_t count) -> jsi::Value {
+        
+        auto viewId = args[0].asNumber();
+        __block CGRect viewFrame = CGRectZero;
+        __block CGRect globalBounds = CGRectZero;
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            auto idNumber = [[NSNumber alloc] initWithDouble:viewId];
+            auto view = [bridge.uiManager viewForReactTag: idNumber];
+            UIView *rootView = view;
+            if (view != nil) {
+                viewFrame = view.frame;
+                while (rootView.superview && ![rootView isReactRootView]) {
+                    rootView = rootView.superview;
+                }
+                if (rootView) {
+                    globalBounds = [view convertRect:view.bounds toView:rootView];
+                }
+            }
+        });
+        
+        
+        
+        if (CGRectIsEmpty(globalBounds)) return jsi::Value::undefined();
+        
+        jsi::Object result = jsi::Object(runtime);
+        result.setProperty(runtime, "width", jsi::Value(globalBounds.size.width));
+        result.setProperty(runtime, "height", jsi::Value(globalBounds.size.height));
+        result.setProperty(runtime, "x", jsi::Value(globalBounds.origin.x));
+        result.setProperty(runtime, "y", jsi::Value(globalBounds.origin.y));
+        
+        return result;
+    });
+
+    runtime.global().setProperty(runtime, "measureText", measureText);
+    runtime.global().setProperty(runtime, "measureView", measureView);
     
     return @true;
     

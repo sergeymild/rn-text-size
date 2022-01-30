@@ -17,7 +17,7 @@ public class RandomValuesJsiHelperModule extends ReactContextBaseJavaModule {
 
     public RandomValuesJsiHelperModule(ReactApplicationContext reactContext) {
         super(reactContext);
-      RNTextSizeModule.mReactContext = reactContext.getApplicationContext();
+      RNTextSizeModule.mReactContext = reactContext;
     }
 
     @Override
