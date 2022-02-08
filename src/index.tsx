@@ -20,27 +20,34 @@ const RandomValuesJsiHelper = NativeModules.RandomValuesJsiHelper
 
 RandomValuesJsiHelper.install();
 
+export interface MeasureParams {
+  text: string;
+  fontSize: number;
+  maxWidth: number;
+  fontFamily?: string;
+}
+
+export interface MeasureResult {
+  height: number;
+  width: number;
+  lineCount: number;
+  lastLineWidth: number;
+}
+
+export interface MeasureViewResult {
+  height: number;
+  width: number;
+  x: number;
+  y: number;
+}
+
 export class RNViewHelpers {
-  static measureText(
-    text: string,
-    fontSize: number,
-    maxWidth: number
-  ): {
-    height: number;
-    width: number;
-    lineCount: number;
-    lastLineWidth: number;
-  } {
+  static measureText(params: MeasureParams): MeasureResult {
     // @ts-ignore
-    return global.measureText(text, fontSize, maxWidth)
+    return global.measureText(params);
   }
 
-  static measureView(ref: React.RefObject<any>): {
-    height: number;
-    width: number;
-    x: number;
-    y: number;
-  } {
+  static measureView(ref: React.RefObject<any>): MeasureViewResult {
     const viewId = findNodeHandle(ref.current);
     if (!viewId) return { width: 0, height: 0, x: 0, y: 0 };
     // @ts-ignore

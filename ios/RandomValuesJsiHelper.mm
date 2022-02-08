@@ -63,14 +63,21 @@ RCT_EXPORT_BLOCKING_SYNCHRONOUS_METHOD(install) {
     
     auto measureText = jsi::Function::createFromHostFunction(runtime,
                                                                  jsi::PropNameID::forUtf8(runtime, "measureText"),
-                                                                 3,
+                                                                 1,
                                                                  [](jsi::Runtime& runtime,
                                                                     const jsi::Value& thisArg,
                                                                     const jsi::Value* args,
                                                                     size_t count) -> jsi::Value {
-        auto rawText = args[0].asString(runtime).utf8(runtime);
-        auto fontSize = args[1].asNumber();
-        auto width = args[2].asNumber();
+        auto params = args[0].asObject(runtime);
+        auto rawText = params.getProperty(runtime, "text").asString(runtime).utf8(runtime);
+        auto fontSize = params.getProperty(runtime, "fontSize").asNumber();
+        auto width = params.getProperty(runtime, "maxWidth").asNumber();
+        
+        NSString *fontFamily = nil;
+        if (params.hasProperty(runtime, "fontFamily")) {
+            auto rawFontFamily = params.getProperty(runtime, "fontFamily").asString(runtime).utf8(runtime);
+            fontFamily = [NSString stringWithUTF8String:rawFontFamily.c_str()];
+        }
         
         auto text = [NSString stringWithUTF8String:rawText.c_str()];
 
@@ -78,7 +85,8 @@ RCT_EXPORT_BLOCKING_SYNCHRONOUS_METHOD(install) {
             @"text": text,
             @"width": [[NSNumber alloc] initWithDouble:width],
             @"fontSize": [[NSNumber alloc] initWithDouble:fontSize],
-            @"usePreciseWidth": @true
+            @"usePreciseWidth": @true,
+            @"fontFamily": fontFamily
         }];
         
         return convertNSDictionaryToJSIObject(runtime, result);

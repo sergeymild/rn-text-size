@@ -16,23 +16,45 @@ void install(jsi::Runtime &jsiRuntime, /*std::function<byte *(int size)> createR
     auto measureText = jsi::Function::createFromHostFunction(
             jsiRuntime,
             jsi::PropNameID::forUtf8(jsiRuntime, "measureText"),
-            3,
+            1,
             [=](jsi::Runtime &runtime,
                 const jsi::Value &thisArg,
                 const jsi::Value *args,
                 size_t count) -> jsi::Value {
                 auto result = jsi::Object(runtime);
 
-                std::string rawString = args[0].asString(runtime).utf8(runtime);
-                double fontSize = args[1].asNumber();
-                double width = args[2].asNumber();
+                auto params = args[0].asObject(runtime);
+
+                jstring fontFamily;
+
+                std::string rawString = params
+                        .getProperty(runtime, "text")
+                        .asString(runtime)
+                        .utf8(runtime);
+
+                if (params.hasProperty(runtime, "fontFamily")) {
+                    std::string rawFontFamily = params
+                            .getProperty(runtime, "fontFamily")
+                            .asString(runtime)
+                            .utf8(runtime);
+                    fontFamily = env->NewStringUTF(rawFontFamily.c_str());
+                }
+
+                double fontSize = params
+                        .getProperty(runtime, "fontSize")
+                        .asNumber();
+
+                double width = params
+                        .getProperty(runtime, "maxWidth")
+                        .asNumber();
+
                 jstring text = env->NewStringUTF(rawString.c_str());
 
                 jclass clazz = env->FindClass("com/reactnativerandomvaluesjsihelper/textSize/RNTextSizeModule");
                 jmethodID method = env->GetStaticMethodID(clazz, "measure",
-                                                          "(Ljava/lang/String;DD)[D");
+                                                          "(Ljava/lang/String;Ljava/lang/String;DD)[D");
 
-                auto methodResult = env->CallStaticObjectMethod(clazz, method, text, fontSize, width);
+                auto methodResult = env->CallStaticObjectMethod(clazz, method, text, fontFamily, fontSize, width);
                 _jdoubleArray* jarray1 = reinterpret_cast<_jdoubleArray*>(methodResult);
                 double *data = env->GetDoubleArrayElements(jarray1, NULL);
                 // {height, width, lineCount, lastLineWidth}
@@ -43,6 +65,7 @@ void install(jsi::Runtime &jsiRuntime, /*std::function<byte *(int size)> createR
                 result.setProperty(runtime, "lastLineWidth", data[3]);
 
 
+                env->DeleteLocalRef(fontFamily);
                 env->DeleteLocalRef(text);
                 env->ReleaseDoubleArrayElements(jarray1, data, 0);
 
@@ -53,7 +76,7 @@ void install(jsi::Runtime &jsiRuntime, /*std::function<byte *(int size)> createR
     auto measureView = jsi::Function::createFromHostFunction(
             jsiRuntime,
             jsi::PropNameID::forUtf8(jsiRuntime, "measureView"),
-            3,
+            1,
             [=](jsi::Runtime &runtime,
                 const jsi::Value &thisArg,
                 const jsi::Value *args,

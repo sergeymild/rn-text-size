@@ -143,7 +143,7 @@ public class RNTextSizeModule {
    */
   // {height, width, lineCount, lastLineWidth}
   @Nullable
-  public static double[] measure(String t, double fs, double w) {
+  public static double[] measure(String t, @Nullable String fontFamily, double fs, double w) {
     WritableMap specs = Arguments.createMap();
     specs.putString("text", t);
     specs.putDouble("fontSize", fs);
