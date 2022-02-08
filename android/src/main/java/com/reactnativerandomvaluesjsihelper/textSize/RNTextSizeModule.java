@@ -1,11 +1,8 @@
 package com.reactnativerandomvaluesjsihelper.textSize;
 
 import android.content.Context;
-import android.content.res.AssetManager;
 import android.graphics.Matrix;
-import android.graphics.Paint;
 import android.graphics.RectF;
-import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
@@ -19,27 +16,20 @@ import android.view.ViewParent;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactApplicationContext;
-import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReadableMap;
-import com.facebook.react.bridge.UIManager;
-import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.uimanager.DisplayMetricsHolder;
 import com.facebook.react.uimanager.IllegalViewOperationException;
+import com.facebook.react.uimanager.NativeViewHierarchyManager;
 import com.facebook.react.uimanager.PixelUtil;
 import com.facebook.react.uimanager.RootViewUtil;
-import com.facebook.react.uimanager.UIManagerHelper;
+import com.facebook.react.uimanager.UIImplementation;
 import com.facebook.react.uimanager.UIManagerModule;
-import com.facebook.react.uimanager.common.UIManagerType;
+import com.facebook.react.uimanager.UIViewOperationQueue;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.Semaphore;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class RNTextSizeModule {
@@ -48,7 +38,8 @@ public class RNTextSizeModule {
   private static final float SPACING_MULTIPLIER = 1f;
 
   public static Context mReactContext;
-  private static Handler handler = new Handler(Looper.getMainLooper());
+  @Nullable
+  private static NativeViewHierarchyManager nativeViewHierarchyManager;
 
   public static double[] measure(View view) {
     View rootView = (View) RootViewUtil.getRootView(view);
@@ -111,27 +102,31 @@ public class RNTextSizeModule {
 
   public static double[] measureView(double rawViewId) {
     int viewId = (int) rawViewId;
-    UIManagerModule uiManager = ((ReactApplicationContext) mReactContext).getNativeModule(UIManagerModule.class);
-    Semaphore semaphore = new Semaphore(0);
+
     final double[][] measure = new double[1][1];
-    handler.post(new Runnable() {
-      @Override
-      public void run() {
-        try {
-          View view = uiManager.resolveView(viewId);
-          if (view != null) {
-            measure[0] = measure(view);
-          }
-        } catch (IllegalViewOperationException e) {
-          e.printStackTrace();
-        }
-        semaphore.release();
-      }
-    });
 
     try {
-      semaphore.acquire();
-    } catch (InterruptedException e) {
+      if (nativeViewHierarchyManager == null) {
+        UIManagerModule uiManager = ((ReactApplicationContext) mReactContext).getNativeModule(UIManagerModule.class);
+        Class<? extends UIImplementation> aClass = uiManager.getUIImplementation().getClass();
+        Method getUIViewOperationQueue = aClass.getDeclaredMethod("getUIViewOperationQueue");
+        getUIViewOperationQueue.setAccessible(true);
+        UIViewOperationQueue queue = (UIViewOperationQueue) getUIViewOperationQueue.invoke(uiManager.getUIImplementation());
+
+        Method nativeViewHierarchyManagerMethod = queue.getClass().getDeclaredMethod("getNativeViewHierarchyManager");
+        nativeViewHierarchyManagerMethod.setAccessible(true);
+        nativeViewHierarchyManager = (NativeViewHierarchyManager) nativeViewHierarchyManagerMethod.invoke(queue);
+      }
+
+      View view = nativeViewHierarchyManager.resolveView(viewId);;
+      if (view != null) {
+        measure[0] = measure(view);
+      }
+    } catch (IllegalViewOperationException | NoSuchMethodException e) {
+      e.printStackTrace();
+    } catch (IllegalAccessException e) {
+      e.printStackTrace();
+    } catch (InvocationTargetException e) {
       e.printStackTrace();
     }
 
