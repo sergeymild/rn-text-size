@@ -34,7 +34,7 @@ add_library(reactnativerandomvaluesjsihelper
 
 set_target_properties(
         reactnativerandomvaluesjsihelper PROPERTIES
-        CXX_STANDARD 14
+        CXX_STANDARD 17
         CXX_EXTENSIONS OFF
         POSITION_INDEPENDENT_CODE ON
 )
