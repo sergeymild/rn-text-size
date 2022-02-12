@@ -53,4 +53,16 @@ export class RNViewHelpers {
     // @ts-ignore
     return global.measureView(viewId);
   }
+
+  static registerCallback(callback: () => void) {
+    return global.registerCallback(callback);
+  }
+
+  static invokeCallback() {
+    return global.invokeCallback();
+  }
+
+  static unregisterCallback() {
+    return global.unregisterCallback();
+  }
 }

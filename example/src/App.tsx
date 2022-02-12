@@ -1,8 +1,7 @@
 import * as React from 'react';
 import { useEffect, useRef } from 'react';
 
-import { StyleSheet, Text, View } from 'react-native';
-import 'react-native-random-values-jsi-helper';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { RNViewHelpers } from 'react-native-random-values-jsi-helper';
 
 const text =
@@ -13,28 +12,46 @@ export default function App() {
   const viewRef: React.RefObject<View> = useRef<View>(null);
   const fs = 14;
   const w = 53;
-  const h = RNViewHelpers.measureText({ text, fontSize: fs, maxWidth: w });
-  console.log('[App.measure]', h);
+  //const h = RNViewHelpers.measureText({ text, fontSize: fs, maxWidth: w });
+  //console.log('[App.measure]', h);
 
   useEffect(() => {
     setTimeout(() => {
+
       console.log('[App.]', RNViewHelpers.measureView(viewRef));
     }, 1000);
+
+    RNViewHelpers.registerCallback(() => {
+      console.log('[App.callback]')
+    })
   }, []);
 
   return (
+
     <View style={styles.container}>
       <Text
         ref={viewRef}
         style={{
           fontSize: fs,
-          height: h.height,
-          width: h.width,
+          height: 2,
+          width: 2,
           backgroundColor: 'red',
         }}
       >
         {text}
       </Text>
+
+      <TouchableOpacity style={{marginTop: 100}} onPress={() => {
+        RNViewHelpers.invokeCallback()
+      }}>
+        <Text>Press</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={{marginTop: 100}} onPress={() => {
+        RNViewHelpers.unregisterCallback()
+      }}>
+        <Text>Unregister</Text>
+      </TouchableOpacity>
     </View>
   );
 }

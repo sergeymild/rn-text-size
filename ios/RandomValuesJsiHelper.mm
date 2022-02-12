@@ -2,10 +2,12 @@
 #import <React/RCTBlobManager.h>
 #import <React/RCTUIManager.h>
 #import <React/RCTBridge+Private.h>
+#import <ReactCommon/RCTTurboModule.h>
 #import <jsi/jsi.h>
 
 #import <memory>
 #import "RNTextSize.h"
+#include "map"
 
 using namespace facebook;
 
@@ -42,6 +44,9 @@ jsi::Value convertObjCObjectToJSIValue(jsi::Runtime &runtime, id value)
   return jsi::Value::undefined();
 }
 
+std::shared_ptr<facebook::jsi::Function> laterFunction;
+
+std::map<std::string, std::shared_ptr<facebook::jsi::Function>> globalMap;
 
 RCT_EXPORT_MODULE()
 
@@ -91,8 +96,6 @@ RCT_EXPORT_BLOCKING_SYNCHRONOUS_METHOD(install) {
         
         return convertNSDictionaryToJSIObject(runtime, result);
     });
-
-    runtime.global().setProperty(runtime, "measureText", measureText);
     
     auto measureView = jsi::Function::createFromHostFunction(runtime,
                                                                  jsi::PropNameID::forUtf8(runtime, "measureView"),
@@ -132,9 +135,62 @@ RCT_EXPORT_BLOCKING_SYNCHRONOUS_METHOD(install) {
         
         return result;
     });
+    
+    
+    auto registerCallback = jsi::Function::createFromHostFunction(runtime,
+                                                                 jsi::PropNameID::forUtf8(runtime, "registerCallback"),
+                                                                 1,
+                                                                 [bridge](jsi::Runtime& runtime,
+                                                                    const jsi::Value& thisArg,
+                                                                    const jsi::Value* args,
+                                                                    size_t count) -> jsi::Value {
+        
+        auto callback = args[0].asObject(runtime).asFunction(runtime);
+        NSLog(@"dsd");
+        
+        globalMap["callback"] = std::make_shared<jsi::Function>(std::move(callback));
+        
+        //laterFunction = std::make_shared<jsi::Function>(std::move(callback));
+        
+        return jsi::Value::undefined();
+    });
+    
+    auto invokeCallback = jsi::Function::createFromHostFunction(runtime,
+                                                                 jsi::PropNameID::forUtf8(runtime, "invokeCallback"),
+                                                                 0,
+                                                                 [bridge](jsi::Runtime& runtime,
+                                                                    const jsi::Value& thisArg,
+                                                                    const jsi::Value* args,
+                                                                    size_t count) -> jsi::Value {
+        
+        if (globalMap.find("callback") != globalMap.end()) {
+            bridge.jsCallInvoker->invokeAsync([&runtime] () {
+                globalMap["callback"]->call(runtime);
+            });
+        } else {
+            NSLog(@"deleted");
+        }
+        
+        return jsi::Value::undefined();
+    });
+    
+    auto unregisterCallback = jsi::Function::createFromHostFunction(runtime,
+                                                                 jsi::PropNameID::forUtf8(runtime, "unregisterCallback"),
+                                                                 0,
+                                                                 [bridge](jsi::Runtime& runtime,
+                                                                    const jsi::Value& thisArg,
+                                                                    const jsi::Value* args,
+                                                                    size_t count) -> jsi::Value {
+        
+        globalMap.erase("callback");
+        return jsi::Value::undefined();
+    });
 
     runtime.global().setProperty(runtime, "measureText", measureText);
     runtime.global().setProperty(runtime, "measureView", measureView);
+    runtime.global().setProperty(runtime, "registerCallback", registerCallback);
+    runtime.global().setProperty(runtime, "invokeCallback", invokeCallback);
+    runtime.global().setProperty(runtime, "unregisterCallback", unregisterCallback);
     
     return @true;
     

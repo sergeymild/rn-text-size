@@ -5,8 +5,8 @@
   "private": true,
   "scripts": {
     "android": "react-native run-android",
-    "ios": "react-native run-ios",
-    "start": "react-native start"
+    "ios": "react-native run-ios --simulator='iPhone X'",
+    "start": "react-native start --reset-cache"
   },
   "dependencies": {
     "react": "16.13.1",

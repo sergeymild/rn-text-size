@@ -16,4 +16,6 @@ Pod::Spec.new do |s|
   s.source_files = "ios/**/*.{h,m,mm}", "cpp/**/*.{h,hpp,cpp}"
 
   s.dependency "React-Core"
+  s.dependency "React-callinvoker"
+  s.dependency 'ReactCommon/turbomodule/core'
 end
