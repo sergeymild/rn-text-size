@@ -141,6 +141,7 @@ public class RNTextSizeModule {
   public static double[] measure(String t, @Nullable String fontFamily, double fs, double w) {
     WritableMap specs = Arguments.createMap();
     specs.putString("text", t);
+    specs.putString("fontFamily", fontFamily);
     specs.putDouble("fontSize", fs);
     specs.putDouble("width", w);
     specs.putBoolean("usePreciseWidth", true);
