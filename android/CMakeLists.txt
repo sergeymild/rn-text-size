@@ -11,26 +11,13 @@ include_directories(
         "${NODE_MODULES_DIR}/react-native/React"
         "${NODE_MODULES_DIR}/react-native/React/Base"
         "${NODE_MODULES_DIR}/react-native/ReactCommon/jsi"
-        "${NODE_MODULES_DIR}/react-native/ReactAndroid/src/main/jni"
-        "${NODE_MODULES_DIR}/react-native/ReactAndroid/src/main/java/com/facebook/react/turbomodule/core/jni"
 )
-
-if(${REACT_NATIVE_VERSION} LESS 66)
-  set (
-          INCLUDE_JSI_CPP
-          "${NODE_MODULES_DIR}/react-native/ReactCommon/jsi/jsi/jsi.cpp"
-  )
-endif()
 
 add_library(reactnativerandomvaluesjsihelper
         SHARED
         cpp-adapter.cpp
         ${INCLUDE_JSI_CPP}
 )
-
-#target_include_directories(
-#        reactnativerandomvaluesjsihelper
-#)
 
 set_target_properties(
         reactnativerandomvaluesjsihelper PROPERTIES
