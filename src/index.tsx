@@ -24,6 +24,8 @@ export interface MeasureParams {
   text: string;
   fontSize: number;
   maxWidth: number;
+  allowFontScaling?: boolean;
+  usePreciseWidth?: boolean;
   fontFamily?: string;
 }
 

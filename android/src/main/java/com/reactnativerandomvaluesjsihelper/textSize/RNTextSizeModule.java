@@ -138,13 +138,21 @@ public class RNTextSizeModule {
    */
   // {height, width, lineCount, lastLineWidth}
   @Nullable
-  public static double[] measure(String t, @Nullable String fontFamily, double fs, double w) {
+  public static double[] measure(
+    String t,
+    @Nullable String fontFamily,
+    double fontSize,
+    double maxWidth,
+    boolean usePreciseWidth,
+    boolean allowFontScaling
+  ) {
     WritableMap specs = Arguments.createMap();
     specs.putString("text", t);
     specs.putString("fontFamily", fontFamily);
-    specs.putDouble("fontSize", fs);
-    specs.putDouble("width", w);
-    specs.putBoolean("usePreciseWidth", true);
+    specs.putDouble("fontSize", fontSize);
+    specs.putDouble("width", maxWidth);
+    specs.putBoolean("usePreciseWidth", usePreciseWidth);
+    specs.putBoolean("allowFontScaling", allowFontScaling);
     final RNTextSizeConf conf = getConf(specs, true);
 
     final String _text = conf.getString("text");
@@ -213,7 +221,7 @@ public class RNTextSizeModule {
       final double lineCount = layout.getLineCount();
       double rectWidth;
       double lastLineWidth = 0.0;
-      if (conf.getBooleanOrTrue("usePreciseWidth")) {
+      if (conf.getBooleanOrFalse("usePreciseWidth")) {
         float lastWidth = 0f;
         // Layout.getWidth() returns the configured max width, we must
         // go slow to get the used one (and with the text trimmed).

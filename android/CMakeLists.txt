@@ -52,11 +52,11 @@ find_library(
         NO_CMAKE_FIND_ROOT_PATH
 )
 find_library(
-          JSI_LIB
-          jsi
-          PATHS ${LIBRN_DIR}
-          NO_CMAKE_FIND_ROOT_PATH
-  )
+        ${JSI_LIB}
+        jsi
+        PATHS ${LIBRN_DIR}
+        NO_CMAKE_FIND_ROOT_PATH
+)
 
 target_link_libraries(
         reactnativerandomvaluesjsihelper

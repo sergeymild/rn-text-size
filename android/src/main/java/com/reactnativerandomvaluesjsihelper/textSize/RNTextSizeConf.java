@@ -73,6 +73,11 @@ final class RNTextSizeConf {
     return !mOpts.hasKey(name) || mOpts.getBoolean(name);
   }
 
+  boolean getBooleanOrFalse(@Nonnull final String name) {
+    if (mOpts.hasKey(name)) return false;
+    return mOpts.getBoolean(name);
+  }
+
   Integer getIntOrNull(@Nonnull final String name) {
     return mOpts.hasKey(name)
       ? mOpts.getInt(name) : null;

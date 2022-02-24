@@ -19,15 +19,33 @@ import "react-native-random-values-jsi-helper";
 You can now use the `RNViewHelpers.measureText` and `RNViewHelpers.measureView` method in your React Native app.
 
 ```ts
-RNViewHelpers.measureText(
-  text: string,
-  fontSize: number,
-  maxWidth: number
-): { height: number; width: number; lineCount: number; lastLineWidth: number };
+export interface MeasureParams {
+  text: string;
+  fontSize: number;
+  maxWidth: number;
+  allowFontScaling?: boolean;
+  usePreciseWidth?: boolean;
+  fontFamily?: string;
+}
 
-RNViewHelpers.measureView(
-  ref: ref: React.RefObject<any>
-): { height: number; width: number; x: number; y: number };
+export interface MeasureResult {
+  height: number;
+  width: number;
+  lineCount: number;
+  lastLineWidth: number;
+}
+
+export interface MeasureViewResult {
+  height: number;
+  width: number;
+  x: number;
+  y: number;
+}
+
+export class RNViewHelpers {
+  static measureText(params: MeasureParams): MeasureResult
+  static measureView(ref: React.RefObject<any>): MeasureViewResult
+}
 ```
 
 ## Performance

@@ -72,6 +72,16 @@ RCT_EXPORT_BLOCKING_SYNCHRONOUS_METHOD(install) {
         auto rawText = params.getProperty(runtime, "text").asString(runtime).utf8(runtime);
         auto fontSize = params.getProperty(runtime, "fontSize").asNumber();
         auto width = params.getProperty(runtime, "maxWidth").asNumber();
+        auto allowFontScaling = true;
+        auto usePreciseWidth = false;
+        
+        if (params.hasProperty(runtime, "allowFontScaling")) {
+            allowFontScaling = params.getProperty(runtime, "allowFontScaling").getBool();
+        }
+        
+        if (params.hasProperty(runtime, "usePreciseWidth")) {
+            usePreciseWidth = params.getProperty(runtime, "usePreciseWidth").getBool();
+        }
         
         NSString *fontFamily = nil;
         if (params.hasProperty(runtime, "fontFamily")) {
@@ -85,14 +95,13 @@ RCT_EXPORT_BLOCKING_SYNCHRONOUS_METHOD(install) {
             @"text": text,
             @"width": [[NSNumber alloc] initWithDouble:width],
             @"fontSize": [[NSNumber alloc] initWithDouble:fontSize],
-            @"usePreciseWidth": @true,
+            @"usePreciseWidth": usePreciseWidth ? @true : @false,
+            @"allowFontScaling": allowFontScaling ? @true : @false,
             @"fontFamily": fontFamily
         }];
         
         return convertNSDictionaryToJSIObject(runtime, result);
     });
-
-    runtime.global().setProperty(runtime, "measureText", measureText);
     
     auto measureView = jsi::Function::createFromHostFunction(runtime,
                                                                  jsi::PropNameID::forUtf8(runtime, "measureView"),

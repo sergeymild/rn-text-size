@@ -6,6 +6,14 @@
 //  Copyright © 2022 Facebook. All rights reserved.
 //
 
+
+//#import "RCTBridge+Private.h"
+//#import "RCTBridge.h"
+#import <React/RCTBridgeModule.h>
+#import <React/RCTBridge+Private.h>
+#import <React/RCTBridge.h>
+#import <React/RCTAccessibilityManager.h>
+
 @interface RNTextSize : NSObject
 -(NSDictionary*) measure:(NSDictionary*)options;
 @end

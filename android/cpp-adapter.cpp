@@ -26,6 +26,8 @@ void install(jsi::Runtime &jsiRuntime, /*std::function<byte *(int size)> createR
                 auto params = args[0].asObject(runtime);
 
                 jstring fontFamily;
+                jboolean allowFontScaling = true;
+                jboolean usePreciseWidth = false;
 
                 std::string rawString = params
                         .getProperty(runtime, "text")
@@ -40,6 +42,14 @@ void install(jsi::Runtime &jsiRuntime, /*std::function<byte *(int size)> createR
                     fontFamily = env->NewStringUTF(rawFontFamily.c_str());
                 }
 
+                if (params.hasProperty(runtime, "allowFontScaling")) {
+                    allowFontScaling = params.getProperty(runtime, "allowFontScaling").getBool();
+                }
+
+                if (params.hasProperty(runtime, "usePreciseWidth")) {
+                    allowFontScaling = params.getProperty(runtime, "usePreciseWidth").getBool();
+                }
+
                 double fontSize = params
                         .getProperty(runtime, "fontSize")
                         .asNumber();
@@ -52,9 +62,9 @@ void install(jsi::Runtime &jsiRuntime, /*std::function<byte *(int size)> createR
 
                 jclass clazz = env->FindClass("com/reactnativerandomvaluesjsihelper/textSize/RNTextSizeModule");
                 jmethodID method = env->GetStaticMethodID(clazz, "measure",
-                                                          "(Ljava/lang/String;Ljava/lang/String;DD)[D");
+                                                          "(Ljava/lang/String;Ljava/lang/String;DDZZ)[D");
 
-                auto methodResult = env->CallStaticObjectMethod(clazz, method, text, fontFamily, fontSize, width);
+                auto methodResult = env->CallStaticObjectMethod(clazz, method, text, fontFamily, fontSize, width, usePreciseWidth, allowFontScaling);
                 _jdoubleArray* jarray1 = reinterpret_cast<_jdoubleArray*>(methodResult);
                 double *data = env->GetDoubleArrayElements(jarray1, NULL);
                 // {height, width, lineCount, lastLineWidth}
