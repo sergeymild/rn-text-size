@@ -91,14 +91,12 @@ RCT_EXPORT_BLOCKING_SYNCHRONOUS_METHOD(install) {
         
         auto text = [NSString stringWithUTF8String:rawText.c_str()];
 
-        auto result = [[[RNTextSize alloc] init] measure:@{
-            @"text": text,
-            @"width": [[NSNumber alloc] initWithDouble:width],
-            @"fontSize": [[NSNumber alloc] initWithDouble:fontSize],
-            @"usePreciseWidth": usePreciseWidth ? @true : @false,
-            @"allowFontScaling": allowFontScaling ? @true : @false,
-            @"fontFamily": fontFamily
-        }];
+        auto result = [[[RNTextSize alloc] init] measure:text
+                                     width:[[NSNumber alloc] initWithDouble:width]
+                                  fontSize:[[NSNumber alloc] initWithDouble:fontSize]
+                           usePreciseWidth:usePreciseWidth
+                          allowFontScaling:allowFontScaling
+                                fontFamily:fontFamily];
         
         return convertNSDictionaryToJSIObject(runtime, result);
     });
@@ -142,8 +140,8 @@ RCT_EXPORT_BLOCKING_SYNCHRONOUS_METHOD(install) {
         return result;
     });
 
-    runtime.global().setProperty(runtime, "measureText", measureText);
-    runtime.global().setProperty(runtime, "measureView", measureView);
+    runtime.global().setProperty(runtime, "measureText", std::move(measureText));
+    runtime.global().setProperty(runtime, "measureView", std::move(measureView));
     
     return @true;
     

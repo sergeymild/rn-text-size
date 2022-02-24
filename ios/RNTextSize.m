@@ -44,10 +44,14 @@ static inline CGFloat CGFloatValueFrom(NSNumber * _Nullable num) {
  * Based on `RCTTextShadowViewMeasure` of Libraries/Text/Text/RCTTextShadowView.m
  */
 
--(NSDictionary*) measure:(NSDictionary*)options
+-(NSDictionary*) measure:(NSString*)text
+                   width:(NSNumber*)width
+                fontSize:(NSNumber*)fontSize
+         usePreciseWidth:(BOOL)usePreciseWidth
+        allowFontScaling:(BOOL)allowFontScaling
+              fontFamily:(NSString*)fontFamily
 {
     // RCTConvert will return nil if the `options` object was not received.
-    NSString *const _Nullable text = [RCTConvert NSString:options[@"text"]];
     if (isNull(text)) {
       return NULL;
     }
@@ -65,7 +69,9 @@ static inline CGFloat CGFloatValueFrom(NSNumber * _Nullable num) {
 
     // We cann't use RCTConvert since it does not handle font scaling and RN
     // does not scale the font if a custom delegate has been defined to create.
-    UIFont *const _Nullable font = [self scaledUIFontFromUserSpecs:options];
+    UIFont *const _Nullable font = [self scaledUIFontFromUserSpecs:allowFontScaling
+                                                          fontSize:fontSize
+                                                        fontFamily:fontFamily];
     if (!font) {
         return @{
             @"width": @0,
@@ -76,13 +82,14 @@ static inline CGFloat CGFloatValueFrom(NSNumber * _Nullable num) {
     }
 
     // Allow the user to specify the width or height (both optionals).
-    const CGFloat optWidth = CGFloatValueFrom(options[@"width"]);
+    const CGFloat optWidth = CGFloatValueFrom(width);
     const CGFloat maxWidth = isnan(optWidth) || isinf(optWidth) ? CGFLOAT_MAX : optWidth;
     const CGSize maxSize = CGSizeMake(maxWidth, CGFLOAT_MAX);
 
+    
     // Create attributes for the font and the optional letter spacing.
-    const CGFloat letterSpacing = CGFloatValueFrom(options[@"letterSpacing"]);
-    NSDictionary<NSAttributedStringKey,id> *const attributes = isnan(letterSpacing)
+    const CGFloat letterSpacing = CGFLOAT_MIN; //CGFloatValueFrom(options[@"letterSpacing"]);
+    NSDictionary<NSAttributedStringKey,id> *const attributes = letterSpacing == CGFLOAT_MIN
     ? @{NSFontAttributeName: font}
     : @{NSFontAttributeName: font, NSKernAttributeName: @(letterSpacing)};
 
@@ -104,31 +111,30 @@ static inline CGFloat CGFloatValueFrom(NSNumber * _Nullable num) {
     }
 
     const CGFloat epsilon = 0.001;
-    const CGFloat width = MIN(RCTCeilPixelValue(size.width + epsilon), maxSize.width);
     const CGFloat height = MIN(RCTCeilPixelValue(size.height + epsilon), maxSize.height);
     const NSInteger lineCount = [self getLineCount:layoutManager];
 
     NSMutableDictionary *result = [[NSMutableDictionary alloc]
-                                   initWithObjectsAndKeys:@(width), @"width",
+                                   initWithObjectsAndKeys:@(MIN(RCTCeilPixelValue(size.width + epsilon), maxSize.width)), @"width",
                                    @(height), @"height",
                                    @(lineCount), @"lineCount",
                                    nil];
 
-    if ([options[@"usePreciseWidth"] boolValue]) {
+    if (usePreciseWidth) {
       const CGFloat lastIndex = layoutManager.numberOfGlyphs - 1;
       const CGSize lastSize = [layoutManager lineFragmentUsedRectForGlyphAtIndex:lastIndex
                                                                   effectiveRange:nil].size;
       [result setValue:@(lastSize.width) forKey:@"lastLineWidth"];
     }
 
-    const CGFloat optLine = CGFloatValueFrom(options[@"lineInfoForLine"]);
-    if (!isnan(optLine) && optLine >= 0) {
-      const NSInteger line = MIN((NSInteger) optLine, lineCount);
-      NSDictionary *lineInfo = [self getLineInfo:layoutManager str:text lineNo:line];
-      if (lineInfo) {
-        [result setValue:lineInfo forKey:@"lineInfo"];
-      }
-    }
+//    const CGFloat optLine = CGFloatValueFrom(options[@"lineInfoForLine"]);
+//    if (!isnan(optLine) && optLine >= 0) {
+//      const NSInteger line = MIN((NSInteger) optLine, lineCount);
+//      NSDictionary *lineInfo = [self getLineInfo:layoutManager str:text lineNo:line];
+//      if (lineInfo) {
+//        [result setValue:lineInfo forKey:@"lineInfo"];
+//      }
+//    }
 
     return result;
     
@@ -208,30 +214,34 @@ static inline CGFloat CGFloatValueFrom(NSNumber * _Nullable num) {
  * This method is used instead of [RCTConvert UIFont] to support the omission
  * of scaling when a custom delegate has been defined for font's creation.
  */
-- (UIFont * _Nullable)scaledUIFontFromUserSpecs:(const NSDictionary *)specs
+- (UIFont * _Nullable)scaledUIFontFromUserSpecs:(BOOL)allowFontScaling
+                                       fontSize:(NSNumber*)fontSize
+                                     fontFamily:(NSString*)fontFamily
 {
-    const id allowFontScalingSrc = specs[@"allowFontScaling"];
-    const BOOL allowFontScaling = allowFontScalingSrc ? [allowFontScalingSrc boolValue] : YES;
     
     RCTBridge* bridge = [RCTBridge currentBridge];
     
     const CGFloat scaleMultiplier =
     allowFontScaling && bridge ? bridge.accessibilityManager.multiplier : 1.0;
-    return [self UIFontFromUserSpecs:specs withScale:scaleMultiplier];
+    return [self UIFontFromUserSpecs:fontSize
+                          fontFamily:fontFamily
+                           withScale:scaleMultiplier
+    ];
 }
 
 /**
  * Create a font based on the given specs.
  */
-- (UIFont * _Nullable)UIFontFromUserSpecs:(const NSDictionary *)specs
+- (UIFont * _Nullable)UIFontFromUserSpecs:(NSNumber*)fontSize
+                               fontFamily:(NSString*)fontFamily
                                 withScale:(CGFloat)scaleMultiplier
 {
   return [RCTFont updateFont:nil
-                  withFamily:[RCTConvert NSString:specs[@"fontFamily"]]
-                        size:[RCTConvert NSNumber:specs[@"fontSize"]]
-                      weight:[RCTConvert NSString:specs[@"fontWeight"]]
-                       style:[RCTConvert NSString:specs[@"fontStyle"]]
-                     variant:[RCTConvert NSStringArray:specs[@"fontVariant"]]
+                  withFamily:fontFamily
+                        size:fontSize
+                      weight:nil
+                       style:nil
+                     variant:nil
              scaleMultiplier:scaleMultiplier];
 }
 

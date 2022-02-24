@@ -21,13 +21,13 @@ void install(jsi::Runtime &jsiRuntime, /*std::function<byte *(int size)> createR
                 const jsi::Value &thisArg,
                 const jsi::Value *args,
                 size_t count) -> jsi::Value {
-                auto result = jsi::Object(runtime);
-
                 auto params = args[0].asObject(runtime);
 
-                jstring fontFamily;
-                jboolean allowFontScaling = true;
-                jboolean usePreciseWidth = false;
+                __android_log_print(ANDROID_LOG_VERBOSE,"++++++", "measureText");
+
+                jstring fontFamily = nullptr;
+                auto allowFontScaling = true;
+                auto usePreciseWidth = false;
 
                 std::string rawString = params
                         .getProperty(runtime, "text")
@@ -43,11 +43,13 @@ void install(jsi::Runtime &jsiRuntime, /*std::function<byte *(int size)> createR
                 }
 
                 if (params.hasProperty(runtime, "allowFontScaling")) {
-                    allowFontScaling = params.getProperty(runtime, "allowFontScaling").getBool();
+                    bool allow = params.getProperty(runtime, "allowFontScaling").getBool();
+                    allowFontScaling = allow;
                 }
 
                 if (params.hasProperty(runtime, "usePreciseWidth")) {
-                    allowFontScaling = params.getProperty(runtime, "usePreciseWidth").getBool();
+                    bool allow = params.getProperty(runtime, "usePreciseWidth").getBool();
+                    usePreciseWidth = allow;
                 }
 
                 double fontSize = params
@@ -69,13 +71,14 @@ void install(jsi::Runtime &jsiRuntime, /*std::function<byte *(int size)> createR
                 double *data = env->GetDoubleArrayElements(jarray1, NULL);
                 // {height, width, lineCount, lastLineWidth}
 
+                auto result = jsi::Object(runtime);
                 result.setProperty(runtime, "height", data[0]);
                 result.setProperty(runtime, "width", data[1]);
                 result.setProperty(runtime, "lineCount", data[2]);
                 result.setProperty(runtime, "lastLineWidth", data[3]);
 
 
-                env->DeleteLocalRef(fontFamily);
+                if (fontFamily != nullptr) env->DeleteLocalRef(fontFamily);
                 env->DeleteLocalRef(text);
                 env->ReleaseDoubleArrayElements(jarray1, data, 0);
 
@@ -110,8 +113,8 @@ void install(jsi::Runtime &jsiRuntime, /*std::function<byte *(int size)> createR
                 return result;
             });
 
-    jsiRuntime.global().setProperty(jsiRuntime, "measureView", std::move(measureView));
-    jsiRuntime.global().setProperty(jsiRuntime, "measureText", std::move(measureText));
+    jsiRuntime.global().setProperty(jsiRuntime, "measureView", measureView);
+    jsiRuntime.global().setProperty(jsiRuntime, "measureText", measureText);
 }
 
 extern "C"

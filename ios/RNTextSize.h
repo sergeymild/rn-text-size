@@ -15,5 +15,10 @@
 #import <React/RCTAccessibilityManager.h>
 
 @interface RNTextSize : NSObject
--(NSDictionary*) measure:(NSDictionary*)options;
+-(NSDictionary*) measure:(NSString*)text
+                   width:(NSNumber*)width
+                fontSize:(NSNumber*)fontSize
+         usePreciseWidth:(BOOL)usePreciseWidth
+        allowFontScaling:(BOOL)allowFontScaling
+              fontFamily:(NSString*)fontFamily;
 @end

@@ -14,7 +14,11 @@ export default function App() {
   const fs = 14;
   const w = 53;
   const h = RNViewHelpers.measureText({ text, fontSize: fs, maxWidth: w });
-  console.log('[App.measure]', h);
+  console.log('[App.measure]',
+    RNViewHelpers.measureText({ text, fontSize: fs, maxWidth: w }),
+    RNViewHelpers.measureText({ text, fontSize: fs, maxWidth: w }),
+    RNViewHelpers.measureText({ text, fontSize: fs, maxWidth: w }),
+  );
 
   useEffect(() => {
     setTimeout(() => {
